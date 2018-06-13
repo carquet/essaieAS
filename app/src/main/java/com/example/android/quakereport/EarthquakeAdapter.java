@@ -19,6 +19,7 @@ import java.util.Date;
 import org.w3c.dom.Text;
 import android.graphics.drawable.GradientDrawable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 
@@ -28,7 +29,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
     String primaryLocation;
     String locationOffset;
 
-    public EarthquakeAdapter(Activity context, ArrayList<Earthquake> earthquakes){
+    public EarthquakeAdapter(Activity context, List<Earthquake> earthquakes){
         super(context, 0, earthquakes);
     }
 

@@ -40,53 +40,60 @@ public class EarthquakeActivity extends AppCompatActivity {
      * This class is only meant to hold static variables and methods, which can be accessed
      * directly from the class name QueryUtils (and an object instance of QueryUtils is not needed).
      */
+     EarthquakeAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
+        GetEarthquakes task = new GetEarthquakes();
+        task.execute(USGS_URL_STRING);
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
-
-        new GetEarthquakes.execute(USGS_URL_STRING);
-
-        // Find a reference to the {@link ListView} in the layout
-        //
-
         // Create a new {@link ArrayAdapter} of earthquakes
-        //EarthquakeAdapter adapter = new EarthquakeAdapter(this, earthquakes);
+         adapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
-        //earthquakeListView.setAdapter(adapter);
+        if (earthquakeListView != null) {
+            earthquakeListView.setAdapter(adapter);
+        }
 
-        /*earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Earthquake currentEarthquake = earthquakes.get(i);
-                Uri urlParsed = Uri.parse(currentEarthquake.getmUrl());
-                Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, urlParsed);
-                        startActivity(openUrlIntent);
-            }
-        });
-        */
+        if (earthquakeListView != null) {
+            earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Earthquake currentEarthquake = adapter.getItem(i);
+                    Uri urlParsed = Uri.parse(currentEarthquake.getmUrl());
+                    Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, urlParsed);
+                    startActivity(openUrlIntent);
+                }
+            });
+        }
+
+
     }
 
-        private class GetEarhquakes extends AsyncTask<String, Void, List<Earthquake>>{
+        private class GetEarthquakes extends AsyncTask<String, Void, List<Earthquake>>{
 
 
             @Override
-            protected List<Earthquake> doInBackground(String... strings) {
+            protected List<Earthquake> doInBackground(String... urls) {
                 // Perform the HTTP request for earthquake data and process the response.
                 // Create a fake list of earthquake locations.
-                QueryUtils.fetchEarthquakeData(strings);
+                List<Earthquake> result = QueryUtils.fetchEarthquakeData(urls[0]);
+                return result;
+
 
             }
 
             @Override
-            protected void onPostExecute(List<Earthquake> earthquakes) {
+            protected void onPostExecute(final List<Earthquake> earthquakes) {
                 super.onPostExecute(earthquakes);
+                adapter.clear();
+                if (earthquakes != null && !earthquakes.isEmpty()) {
+                    adapter.addAll(earthquakes);
+                }
             }
         }
-    }
-
+}
